@@ -99,11 +99,43 @@ def load_subjects():
             if datetime.now() > date_obj:
                 lbl_date.config(fg="red")
 
+        last_date = datetime.strptime(subject[6], "%d-%m-%Y")
+        now = datetime.now()
+        countdown_label = tk.Label(card, text="", font=('TkDefaultFont', 12))
+        countdown_label.pack(pady=5)
+
+        if now < last_date:
+            delete_text = "Delete button will be enabled in:"
+            btn_delete_state = tk.DISABLED
+        else:
+            delete_text = "Delete button is enabled."
+            btn_delete_state = tk.NORMAL
+
+        lbl_delete_info = tk.Label(card, text=delete_text, font=('TkDefaultFont', 12))
+        lbl_delete_info.pack(pady=5)
+
         btn_edit_card = tk.Button(card, text="Edit", command=lambda s=subject: edit_subject_card(s), font=('TkDefaultFont', 10))
         btn_edit_card.pack(side="left", padx=5)
 
-        btn_delete_card = tk.Button(card, text="Delete", command=lambda s=subject: delete_subject_card(s), font=('TkDefaultFont', 10))
+        btn_delete_card = tk.Button(card, text="Delete", command=lambda s=subject: delete_subject_card(s), font=('TkDefaultFont', 10), state=btn_delete_state)
         btn_delete_card.pack(side="left", padx=5)
+
+        update_countdown(last_date, countdown_label, btn_delete_card)
+
+# وظيفة لتحديث العد التنازلي
+def update_countdown(end_time, countdown_label, delete_button):
+    now = datetime.now()
+    remaining_time = end_time - now
+
+    if remaining_time.total_seconds() > 0:
+        days, remainder = divmod(remaining_time.total_seconds(), 86400)
+        hours, remainder = divmod(remainder, 3600)
+        minutes, seconds = divmod(remainder, 60)
+        countdown_label.config(text=f"Time remaining: {int(days)}d {int(hours)}h {int(minutes)}m {int(seconds)}s")
+        root.after(1000, update_countdown, end_time, countdown_label, delete_button)
+    else:
+        countdown_label.config(text="Time is up!")
+        delete_button.config(state=tk.NORMAL)
 
 # وظيفة لتحرير موضوع في بطاقة
 def edit_subject_card(subject):
