@@ -166,17 +166,24 @@ def check_dates():
     if not subjects:  # Check if there are no subjects
         return
 
+    notification_columns = {
+        "Day 1": "notified1",
+        "Day 3": "notified3",
+        "Day 6": "notified6",
+        "Day 10": "notified10"
+    }
+
     for subject in subjects:
         dates = [
-            ("day1", subject[3], subject[7]),
-            ("day3", subject[4], subject[8]),
-            ("day6", subject[5], subject[9]),
-            ("day10", subject[6], subject[10])
+            ("Day 1", subject[3], subject[7]),
+            ("Day 3", subject[4], subject[8]),
+            ("Day 6", subject[5], subject[9]),
+            ("Day 10", subject[6], subject[10])
         ]
 
         for day_label, date, notified in dates:
             date_obj = datetime.strptime(date, "%d-%m-%Y")
-            notification_column = f"notified{day_label[-1]}"
+            notification_column = notification_columns[day_label]
             if datetime.now() > date_obj and not notified:
                 messagebox.showinfo("Notification", f"Time to review: {subject[1]} on {day_label}")
                 c.execute(f"UPDATE subjects SET {notification_column}=? WHERE id=?", (1, subject[0]))
