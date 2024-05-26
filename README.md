@@ -38,7 +38,7 @@ FlashBack is a reminder application designed to help you keep track of subjects 
     - Navigate to the project directory.
     - Run the application with the following command:
       ```sh
-      python reminder_app.py
+      python flashback.py
       ```
 
 2. **Using the Application**:
@@ -105,7 +105,7 @@ FlashBack هو تطبيق تذكير مصمم لمساعدتك على تتبع �
     - انتقل إلى دليل المشروع.
     - قم بتشغيل التطبيق باستخدام الأمر التالي:
       ```sh
-      python reminder_app.py
+      python flashback.py
       ```
 
 2. **استخدام التطبيق**:
