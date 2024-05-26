@@ -78,6 +78,9 @@ def load_subjects():
         card = tk.Frame(cards_frame, borderwidth=2, relief="solid")
         card.pack(side="top", padx=10, pady=10, fill="x")
 
+        lbl_status = tk.Label(card, text="Still Studying", font=('TkDefaultFont', 12), fg="red")
+        lbl_status.pack(anchor="n", pady=5)
+
         lbl_subject_name = tk.Label(card, text=f"{subject[1]}", font=('TkDefaultFont', 14))
         lbl_subject_name.pack(pady=5)
 
@@ -110,6 +113,7 @@ def load_subjects():
         else:
             delete_text = "Delete button is enabled."
             btn_delete_state = tk.NORMAL
+            lbl_status.config(text="Subject well known", fg="green")
 
         lbl_delete_info = tk.Label(card, text=delete_text, font=('TkDefaultFont', 12))
         lbl_delete_info.pack(pady=5)
@@ -120,10 +124,10 @@ def load_subjects():
         btn_delete_card = tk.Button(card, text="Delete", command=lambda s=subject: delete_subject_card(s), font=('TkDefaultFont', 10), state=btn_delete_state)
         btn_delete_card.pack(side="left", padx=5)
 
-        update_countdown(last_date, countdown_label, btn_delete_card)
+        update_countdown(last_date, countdown_label, btn_delete_card, lbl_status)
 
 # وظيفة لتحديث العد التنازلي
-def update_countdown(end_time, countdown_label, delete_button):
+def update_countdown(end_time, countdown_label, delete_button, status_label):
     now = datetime.now()
     remaining_time = end_time - now
 
@@ -132,10 +136,11 @@ def update_countdown(end_time, countdown_label, delete_button):
         hours, remainder = divmod(remainder, 3600)
         minutes, seconds = divmod(remainder, 60)
         countdown_label.config(text=f"Time remaining: {int(days)}d {int(hours)}h {int(minutes)}m {int(seconds)}s")
-        root.after(1000, update_countdown, end_time, countdown_label, delete_button)
+        countdown_label.after(1000, update_countdown, end_time, countdown_label, delete_button, status_label)
     else:
         countdown_label.config(text="Time is up!")
         delete_button.config(state=tk.NORMAL)
+        status_label.config(text="Subject well known", fg="green")
 
 # وظيفة لتحرير موضوع في بطاقة
 def edit_subject_card(subject):
@@ -187,8 +192,26 @@ btn_add = tk.Button(frame, text="Add Subject", command=add_subject, font=('TkDef
 btn_add.grid(row=2, column=0, padx=10)
 
 # إنشاء إطار لاحتواء البطاقات
-cards_frame = tk.Frame(root)
-cards_frame.pack(pady=20, fill="both", expand=True)
+cards_frame_container = tk.Frame(root)
+cards_frame_container.pack(pady=20, fill="both", expand=True)
+
+# إضافة شريط تمرير
+canvas = tk.Canvas(cards_frame_container)
+scrollbar = tk.Scrollbar(cards_frame_container, orient="vertical", command=canvas.yview)
+cards_frame = tk.Frame(canvas)
+
+cards_frame.bind(
+    "<Configure>",
+    lambda e: canvas.configure(
+        scrollregion=canvas.bbox("all")
+    )
+)
+
+canvas.create_window((0, 0), window=cards_frame, anchor="nw")
+canvas.configure(yscrollcommand=scrollbar.set)
+
+canvas.pack(side="left", fill="both", expand=True)
+scrollbar.pack(side="right", fill="y")
 
 # وظيفة لفحص التواريخ وتحديث الإشعارات
 def check_dates():
