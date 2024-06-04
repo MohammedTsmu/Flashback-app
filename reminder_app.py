@@ -96,7 +96,7 @@ def load_subjects():
             lbl_date.pack(pady=5)
 
             date_obj = datetime.strptime(date, "%d-%m-%Y")
-            if datetime.now() > date_obj and not notified:
+            if datetime.now() > date_obj:
                 lbl_date.config(fg="red")
 
         btn_edit_card = tk.Button(card, text="Edit", command=lambda s=subject: edit_subject_card(s), font=('TkDefaultFont', 10))
@@ -163,6 +163,9 @@ def check_dates():
     c.execute("SELECT * FROM subjects")
     subjects = c.fetchall()
 
+    if not subjects:  # Check if there are no subjects
+        return
+
     for subject in subjects:
         dates = [
             ("day1", subject[3], subject[7]),
@@ -171,11 +174,12 @@ def check_dates():
             ("day10", subject[6], subject[10])
         ]
 
-        for day, date, notified in dates:
+        for day_label, date, notified in dates:
             date_obj = datetime.strptime(date, "%d-%m-%Y")
+            notification_column = f"notified{day_label[-1]}"
             if datetime.now() > date_obj and not notified:
-                messagebox.showinfo("Notification", f"Time to review: {subject[1]} on {day}")
-                c.execute(f"UPDATE subjects SET notified{day[-1]}=? WHERE id=?", (1, subject[0]))
+                messagebox.showinfo("Notification", f"Time to review: {subject[1]} on {day_label}")
+                c.execute(f"UPDATE subjects SET {notification_column}=? WHERE id=?", (1, subject[0]))
                 conn.commit()
 
     load_subjects()
